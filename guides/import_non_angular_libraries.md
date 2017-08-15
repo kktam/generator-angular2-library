@@ -61,5 +61,38 @@ In order to run libraries created from other technologies such as JQuery or just
     ],
 ```
 
+### Importing CSS provided by 3rd Party library
+
+Most 3rd party library provides a default suite of CSS files to provide a default theme for use with the library. It is useful to have the re-usable component project bundle the necessary CSS files, instead of having the target users of the re-usable component project, having to download or import the CSS files form a hosted CDN, manually import them again from npm, etc.
+
+### Things to add in the Host applications, to support CSS from the Re-usable component library
+
+If you are using angular-cli to create hosted Angular projects, then you will need to create a new styles.css file under src, and import the merged css styles from the imported re-usable component library, like the following
+
+src/styles.css
+
+```
++@import "~fullcalendar-ag4/styles.css";
+```
+
+Please note the ~ symbol allows you to specify to the Angular transpiler to search from the nearest node_modules folder. In this case, you do not need to specify relative path, or include "node_modules" in the path.
+
+If everything goes well, you will see your new project with the renewed CSS loaded on the component. 
+If you every see the following error from the browser debugger while running the host application, and that would mean the component library CSS is not setup or loaded properly.
+
+```
+Uncaught Error: Unexpected value '[object Object]' imported by the module 'AppModule'. Please add a @NgModule annotation.
+    at syntaxError (compiler.es5.js:1689)
+    at compiler.es5.js:15373
+    at Array.forEach (<anonymous>)
+    at CompileMetadataResolver.webpackJsonp.../../../compiler/@angular/compiler.es5.js.CompileMetadataResolver.getNgModuleMetadata (compiler.es5.js:15356)
+    at JitCompiler.webpackJsonp.../../../compiler/@angular/compiler.es5.js.JitCompiler._loadModules (compiler.es5.js:26679)
+    at JitCompiler.webpackJsonp.../../../compiler/@angular/compiler.es5.js.JitCompiler._compileModuleAndComponents (compiler.es5.js:26652)
+    at JitCompiler.webpackJsonp.../../../compiler/@angular/compiler.es5.js.JitCompiler.compileModuleAsync (compiler.es5.js:26581)
+    at PlatformRef_.webpackJsonp.../../../core/@angular/core.es5.js.PlatformRef_._bootstrapModuleWithZone (core.es5.js:4595)
+    at PlatformRef_.webpackJsonp.../../../core/@angular/core.es5.js.PlatformRef_.bootstrapModule (core.es5.js:4581)
+    at Object.../../../../../src/main.ts (main.ts:11)
+```
+
 
 
