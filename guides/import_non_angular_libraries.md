@@ -61,6 +61,20 @@ In order to run libraries created from other technologies such as JQuery or just
     ],
 ```
 
+There is also a default setting that needed to be changed, to support ES2015 by the AOT compiler.
+The change is the set annotateForClosureCompiler flag to false for ES2015 dependencies. If the resuable component project does not have any ES5 dependencies, this step is not required.
+
+To change, open the file at ROOT\src\tsconfig.es5.json and edit the following
+
+```
+  "angularCompilerOptions": {
+    "annotateForClosureCompiler": false,
+    ...
+  },
+```
+
+If the setting is not done correctly, then compiling the library will result in error. This is documented in Angular's [AOT issue](https://github.com/angular/angular/issues/16084)
+
 ### Importing CSS provided by 3rd Party library
 
 Most 3rd party library provides a default suite of CSS files to provide a default theme for use with the library. It is useful to have the re-usable component project bundle the necessary CSS files, instead of having the target users of the re-usable component project, having to download or import the CSS files form a hosted CDN, manually import them again from npm, etc.
