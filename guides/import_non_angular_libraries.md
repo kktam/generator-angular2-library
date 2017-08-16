@@ -49,12 +49,7 @@ Next open the ROOT\src\package.json
 
 The contents of ROOT\src\package.json are not managed either by npm, or by the generator itself. Therefore, the user must edit the contents of the ROOT\src\package.json manually, and **ensure** the peerDependencies section of the file matches all the contents of the dependencies section of ROOT\package.json.  
 
-A common error is that, during the course of re-usable component library development, it is easy to forget to update the ROOT\src\package.json and it is missing a couple of libraries that was in the ROOT\package.json file. As a result, when the re-usable component project is imported into the host application, the running application will throw the following exception.
-
-```
-SCRIPT5022: Exception thrown and not caught
-File: polyfills.bundle.js, Line: 859, Column: 36
-```
+A common error is that, during the course of re-usable component library development, it is easy to forget to update the ROOT\src\package.json and it is missing a couple of libraries that was in the ROOT\package.json file. As a result, when the re-usable component project is imported into the host application, the running application will throw a module not found exception.
 
 In order to run libraries created from other technologies such as JQuery or just using pure Javascript, ES2015 support may be required, especially when those libraries were not ES6 compliant. In order to enable ES2015 support, simply open tsconfig.json, and edit following
 
@@ -94,6 +89,31 @@ In the case of wrapping FullCalendar in our re-usable component, we will need @t
     "jasmine": "^2.6.0",
     "jquery": "^3.2.1"
   }
+```
+
+You may need to install some extra typings that the types depends on. In my case, I have to install the following typings to compile all the dependencies.
+
+```
+typings install core-js es6-shim jasmine node --save
+```
+
+### Instantiate the jQuery components
+
+First of all, the $ symbol we got to use and familiar with JQuery cannot be used in Angular 4 projects. Therefore, to use JQuery, first import and rename the imported component. Then use .default command call the static typed [constructor](http://definitelytyped.org/docs/angularjs--angular-route/interfaces/jquerystatic.html), like so:
+
+```
+import * as jqueryProxy from 'jquery'
+const jquery: JQueryStatic = (<any>jqueryProxy).default || jqueryProxy;
+```
+
+finally to instantiate the JavaScript typed component, one can hook to the ngAfterViewInit event, and use jquery to search for element install underneath it.
+
+```
+    ngAfterViewInit() {
+        setTimeout(() => {
+            jquery('calendar-component').fullCalendar(this.options);
+        }, 100);
+    }
 ```
 
 ### Importing CSS provided by 3rd Party library
