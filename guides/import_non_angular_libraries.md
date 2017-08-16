@@ -1,8 +1,13 @@
-![generator-angular-2-library help guide]
+## generator-angular-2-library help guide
 
 ## How to import non Angular libraries into your own project
 
 To begin, first follow the general installation guide in the [README.md](https://github.com/kktam/generator-angular2-library) of generator-angular2-library.
+
+The demo projects for instructions described below are in the following Github projects.
+
+[Full Calendar reusable component project](https://github.com/kktam/fullcalendar-ag4), and
+[Full Calendar demo app, using the reusable component](https://github.com/kktam/fullcalendar-app-ag4)
 
 ### General installation of new generator-angular-2-library based project
 
@@ -18,7 +23,7 @@ npm run build
 
 An important note to make about projects created by generator-angular-2-library is that the project contains 2 package.json files. The first one is located at ROOT\package.json and the second one at ROOT\src\package.json. The first package file is responsible to combine the project, like any other Angular project for build, run and distribution etc. So it has all the regular things a standard package.json would have, such as scripts, dependencies and devDependencies.
 
-The second package file, however, is only responsible for describing the packaging steps used for createion of UMD builds, as required by npm repository. For more information about npm's requirement in package.json, please goto [npm package.json explained](https://docs.npmjs.com/cli/build)
+The second package file, however, is only responsible for describing the packaging steps used for creation of UMD builds, as required by npm repository. For more information about npm's requirement in package.json, please goto [npm package.json explained](https://docs.npmjs.com/cli/build)
 
 ### Import non Angular based 3rd party library
 
@@ -44,7 +49,7 @@ Next open the ROOT\src\package.json
 
 The contents of ROOT\src\package.json are not managed either by npm, or by the generator itself. Therefore, the user must edit the contents of the ROOT\src\package.json manually, and **ensure** the peerDependencies section of the file matches all the contents of the dependencies section of ROOT\package.json.  
 
-A common error is that, during the course of re-usuable component libray development, it is easy to forget to update the ROOT\src\package.json and it is missing a couple of libraries that was in the ROOT\package.json file. As a result, when the re-usable component project is imported into the host application, the running application will throw the following exception.
+A common error is that, during the course of re-usable component library development, it is easy to forget to update the ROOT\src\package.json and it is missing a couple of libraries that was in the ROOT\package.json file. As a result, when the re-usable component project is imported into the host application, the running application will throw the following exception.
 
 ```
 SCRIPT5022: Exception thrown and not caught
@@ -62,7 +67,7 @@ In order to run libraries created from other technologies such as JQuery or just
 ```
 
 There is also a default setting that needed to be changed, to support ES2015 by the AOT compiler.
-The change is the set annotateForClosureCompiler flag to false for ES2015 dependencies. If the resuable component project does not have any ES5 dependencies, this step is not required.
+The change is the set annotateForClosureCompiler flag to false for ES2015 dependencies. If the reusable component project does not have any ES5 dependencies, this step is not required.
 
 To change, open the file at ROOT\src\tsconfig.es5.json and edit the following
 
@@ -75,9 +80,48 @@ To change, open the file at ROOT\src\tsconfig.es5.json and edit the following
 
 If the setting is not done correctly, then compiling the library will result in error. This is documented in Angular's [AOT issue](https://github.com/angular/angular/issues/16084)
 
+### Setting up Types for TypeScript
+
+Since Angular 4 uses TypeScript for tooling and automation, and much of Angular 4's library is written in TypeScript. Therefore all of non-Angular based libraries used in an Angular project must be coupled with a "type" definition. Fortunately Angular and the open source community have created a lot of type definitions that are ready to use. Please go to [@types](https://www.npmjs.com/~types) npm repository for a complete list of type definition available.
+
+In the case of wrapping FullCalendar in our re-usable component, we will need @types/fullcalendar. Since we will also need jquery to locate elements in native DOM, and create javascript component directly on it (ES5 ways of creating most JavaScript components), the final dependencies for ROOT\package.json will now look like this: 
+
+```
+  "dependencies": {
+    "@types/fullcalendar": "^2.7.44",
+    "@types/jquery": "3.2.5",
+    "fullcalendar": "^3.4.0",
+    "jasmine": "^2.6.0",
+    "jquery": "^3.2.1"
+  }
+```
+
 ### Importing CSS provided by 3rd Party library
 
 Most 3rd party library provides a default suite of CSS files to provide a default theme for use with the library. It is useful to have the re-usable component project bundle the necessary CSS files, instead of having the target users of the re-usable component project, having to download or import the CSS files form a hosted CDN, manually import them again from npm, etc.
+
+To include native css from 3rd party libraries, create a ROOT\src\styles.css and include all of FullCalendar's css in this file. Once again the ~ import rule will direct to search from the nearest node_modules.
+
+```
+@import "~fullcalendar/dist/fullcalendar.css";
+@import "~fullcalendar/dist/fullcalendar.print.css";
+```
+
+generator-angular2-library does not have steps to copy css files manually added into the UMD distribution.
+
+in ROOT\package.json, install CPX, a copy tool with watches [npm](https://www.npmjs.com/package/cpx) and [github](https://github.com/mysticatea/cpx), and create a step to copy all he necessary css files into dist folder
+
+```
+  "scripts": {
+    ...
+    "build:copy": "cpx 'src/styles.css' dist/",
+    ...
+  "devDependencies": {
+	...
+    "cpx": "^1.5.0"
+  },    
+```
+
 
 ### Things to add in the Host applications, to support CSS from the Re-usable component library
 
@@ -107,6 +151,3 @@ Uncaught Error: Unexpected value '[object Object]' imported by the module 'AppMo
     at PlatformRef_.webpackJsonp.../../../core/@angular/core.es5.js.PlatformRef_.bootstrapModule (core.es5.js:4581)
     at Object.../../../../../src/main.ts (main.ts:11)
 ```
-
-
-
